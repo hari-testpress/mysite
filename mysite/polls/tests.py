@@ -10,7 +10,7 @@ class TestQuestionModel(TestCase):
     def test_was_published_recently_should_return_false_for_question_older_than_a_day(
         self,
     ):
-        time = timezone.now() - datetime.timedelta(days=1,seconds=1)
+        time = timezone.now() - datetime.timedelta(days=2)
         old_question = Question(pub_date=time)
         self.assertFalse(old_question.was_published_recently())
 
