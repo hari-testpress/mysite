@@ -69,13 +69,13 @@ class QuestionIndexViewTests(TestCase):
 
 class QuestionDetailViewTests(TestCase):
 
-    def test_DetailView_should_return_404_not_found_when_question_pub_date_in_the_future(self):
+    def test_should_return_404_for_future_question(self):
         future_question = create_question(question_text='Future question.', days=5)
         url = reverse('polls:detail', args=(future_question.id,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
-    def test_DetailView_should_display_question_text_if_question_pub_date_in_the_past(self):
+    def test_should_display_question_text_for_past_question(self):
         past_question = create_question(question_text='Past Question.', days=-5)
         url = reverse('polls:detail', args=(past_question.id,))
         response = self.client.get(url)
