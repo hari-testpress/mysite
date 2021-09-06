@@ -14,6 +14,11 @@ class TestQuestionModel(TestCase):
         old_question = Question(pub_date=time)
         self.assertFalse(old_question.was_published_recently())
 
+    def test_was_published_recently_with_future_question(self):
+        time = timezone.now() + datetime.timedelta(days=30)
+        future_question = Question(pub_date=time)
+        self.assertFalse(future_question.was_published_recently())
+
     def test_was_published_recently_should_return_true_for_question_created_within_day(
         self,
     ):
