@@ -12,7 +12,7 @@ class TestQuestionModel(TestCase):
     ):
         time = timezone.now() - datetime.timedelta(days=2)
         old_question = Question(pub_date=time)
-        self.assertFalse(old_question.was_published_recently)
+        self.assertFalse(old_question.was_published_recently())
 
     def test_was_published_recently_should_return_true_for_question_created_within_day(
         self,
@@ -20,4 +20,4 @@ class TestQuestionModel(TestCase):
         present_question = Question(
             question_text="2+2", pub_date=timezone.now()
         )
-        self.assertTrue(present_question.was_published_recently)
+        self.assertTrue(present_question.was_published_recently())
