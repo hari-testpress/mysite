@@ -26,7 +26,7 @@ class TestQuestionModel(TestCase):
         present_question = Question(
             question_text="2+2", pub_date=timezone.now()
         )
-        self.assertIs(present_question.was_published_recently(), True)
+        self.assertTrue(present_question.was_published_recently())
 
 
 def create_question(question_text, days):
@@ -35,20 +35,11 @@ def create_question(question_text, days):
 
 
 class QuestionIndexViewTests(TestCase):
-    def test_no_questions(self):
-        """
-        If no questions exist, an appropriate message is displayed.
-        """
+    def test_should_display_no_polls_are_available_if_no_questions_exist(self):
         response = self.client.get(reverse("polls:index"))
-        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "No polls are available.")
-        self.assertQuerysetEqual(response.context["latest_question_list"], [])
 
-    def test_past_question(self):
-        """
-        Questions with a pub_date in the past are displayed on the
-        index page.
-        """
+    def test_should_display_questions_published_in_the_past(self):
         question = create_question(question_text="Past question.", days=-30)
         response = self.client.get(reverse("polls:index"))
         self.assertQuerysetEqual(
@@ -57,39 +48,20 @@ class QuestionIndexViewTests(TestCase):
             transform=lambda x: x,
         )
 
-    def test_future_question(self):
-        """
-        Questions with a pub_date in the future aren't displayed on
-        the index page.
-        """
+    def test_should_not_display_future_question(self):
         create_question(question_text="Future question.", days=30)
         response = self.client.get(reverse("polls:index"))
         self.assertContains(response, "No polls are available.")
         self.assertQuerysetEqual(response.context["latest_question_list"], [])
 
-    def test_future_question_and_past_question(self):
-        """
-        Even if both past and future questions exist, only past questions
-        are displayed.
-        """
+    def test_with_past_and_future_question_should_display_only_past_question(
+        self,
+    ):
         question = create_question(question_text="Past question.", days=-30)
         create_question(question_text="Future question.", days=30)
         response = self.client.get(reverse("polls:index"))
         self.assertQuerysetEqual(
             response.context["latest_question_list"],
             [question],
-            transform=lambda x: x,
-        )
-
-    def test_two_past_questions(self):
-        """
-        The questions index page may display multiple questions.
-        """
-        question1 = create_question(question_text="Past question 1.", days=-30)
-        question2 = create_question(question_text="Past question 2.", days=-5)
-        response = self.client.get(reverse("polls:index"))
-        self.assertQuerysetEqual(
-            response.context["latest_question_list"],
-            [question2, question1],
             transform=lambda x: x,
         )
