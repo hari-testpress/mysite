@@ -42,26 +42,26 @@ class QuestionIndexViewTests(TestCase):
     def test_should_display_questions_published_in_the_past(self):
         question = create_question(question_text="Past question.", days=-30)
         response = self.client.get(reverse("polls:index"))
-        self.assertQuerysetEqual(
-            response.context["latest_question_list"],
-            [question],
-            transform=lambda x: x,
-        )
+        self.assertTrue(question in response.context["latest_question_list"])
 
     def test_should_not_display_future_question(self):
         create_question(question_text="Future question.", days=30)
         response = self.client.get(reverse("polls:index"))
         self.assertContains(response, "No polls are available.")
-        self.assertQuerysetEqual(response.context["latest_question_list"], [])
 
     def test_with_past_and_future_question_should_display_only_past_question(
         self,
     ):
-        question = create_question(question_text="Past question.", days=-30)
-        create_question(question_text="Future question.", days=30)
+        past_question = create_question(
+            question_text="Past question.", days=-30
+        )
+        future_question = create_question(
+            question_text="Future question.", days=30
+        )
         response = self.client.get(reverse("polls:index"))
-        self.assertQuerysetEqual(
-            response.context["latest_question_list"],
-            [question],
-            transform=lambda x: x,
+        self.assertFalse(
+            future_question in response.context["latest_question_list"]
+        )
+        self.assertTrue(
+            past_question in response.context["latest_question_list"]
         )
