@@ -65,3 +65,18 @@ class QuestionIndexViewTests(TestCase):
         self.assertTrue(
             past_question in response.context["latest_question_list"]
         )
+
+
+class QuestionDetailViewTests(TestCase):
+
+    def test_should_return_404_for_future_question(self):
+        future_question = create_question(question_text='Future question.', days=5)
+        url = reverse('polls:detail', args=(future_question.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_should_display_question_text_for_past_question(self):
+        past_question = create_question(question_text='Past Question.', days=-5)
+        url = reverse('polls:detail', args=(past_question.id,))
+        response = self.client.get(url)
+        self.assertContains(response, past_question.question_text)
